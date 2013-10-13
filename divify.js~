@@ -1,0 +1,13 @@
+function loadCanvas() {
+    var canvas = $('#canvas');
+    var context = canvas.getContext('2d');
+    var image = new Image();
+    image.src = 'images/mt_townsend.jpg';
+    imageObj.onload = function() {
+        context.drawImage(this, 0, 0);
+    };
+}
+
+$(document).ready(function(){
+    loadCanvas();
+}
