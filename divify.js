@@ -1,10 +1,10 @@
-// Pixelate an image into a grid of divs. If the image is not sqaure
+// Pixelate an image into a grid of divs. If the image is not square
 // you'll end up with an image with a slightly different height.
 //
 // Pixelating with a pixelSize of 1 will work (and result in a perfect
 // looking replication of the image) but for non-trivial image sizes
 // will result in a LARGE number of DOM elements, the rendering of
-// which could cause your broswer to choke. Success has been had with
+// which could cause your browser to choke. Success has been had with
 // getting a 500x375 image rendering on Chrome and Opera.
 //
 // Parameters: 
@@ -12,7 +12,7 @@
 //   img         Either an image URL or img element to pixelate.
 //   pixelSize   The size of the pixels, must be a multiple of the image width.
 //   canvas      Optional canvas element to use to load the image into.
-//               If ommitted, a canvas element is created but not attached
+//               If omitted, a canvas element is created but not attached
 //               to the DOM.   
 function divifyImage(divified, img, pixelSize, canvas) {
     if (typeof canvas == "undefined")
@@ -59,7 +59,7 @@ function divify(pix, divified, pixelSize, width) {
 
 
 // Make a style sheet and attach to the DOM rather than style the divs
-// directly, to faciliate user styling once the div is created.
+// directly, to facilitate user styling once the div is created.
 function makeStyleSheet(pixelSize) {
     var sheet = document.createElement('style');
     sheet.id = 'divified-styles';
@@ -142,21 +142,4 @@ function range(start, end, step) {
     }
     
     return range;
-}
-
-
-var test = function () {
-    var canvas = document.getElementById('canvas'); 
-    var divified = document.getElementById('divified');
-    var style = "margin: 0 5em; display: inline-block; vertical-align: top;";
-
-    canvas.style.margin = '0 5em';
-    canvas.style.display = 'inline-block';
-    canvas.style['vertical-align'] = 'top';
-
-    divified.style.margin = '0 5em';
-    divified.style.display = 'inline-block';
-    divified.style['vertical-align'] = 'top';
-
-    divifyImage(divified, 'images/mt_townsend.jpg', 5, canvas);
 }

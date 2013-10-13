@@ -2,11 +2,29 @@
 <html>
 <head>
   <meta charset=utf-8 />
-  <title>divify demo</title>
-  <link rel="stylesheet" type="text/css" media="screen" href="divify.css"/>
+  <title>divify test</title>
   <script type="text/javascript" src="divify.js"></script>
+  <style type="text/css">
+    #canvas {
+        margin: 0 5em;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    #divified {
+        margin: 0 5em;
+        display: inline-block;
+        vertical-align: top;
+    }
+  </style>
 </head>
 <body>
   <canvas id="canvas"></canvas>
   <div id="divified"></div>
+  <script type="text/javascript">
+    divifyImage(document.getElementById('divified'), 
+                'images/mt_townsend.jpg',
+                10,
+                document.getElementById('canvas'));
+  </script>
 </body>
