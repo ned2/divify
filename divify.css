@@ -9,12 +9,4 @@
     display: inline-block;
     vertical-align: top;
 }
-
-.clear { clear: both }
-
-.p {
-    float: left;
-    width: 1px;
-    height: 1px;
-}
     
