@@ -1,3 +1,5 @@
+var DIVCOUNTER = 0;
+
 // Pixelate an image into a grid of divs. If the image is not square
 // you'll end up with an image with a slightly different height.
 //
@@ -9,21 +11,14 @@
 //
 // Parameters: 
 //   divified    The target element to place the grid in.
-//   img         Either an image URL or img element to pixelate.
+//   img         target to pixelate. Either an image URL, img element or 
+//               canvas element with image loaded using drawImage, or
+//               an ImageData object -- the result of context.getImageData()
+//               to facillitate not having to get this multiple times. 
 //   pixelSize   The size of the pixels, must be a multiple of the image width.
-//   canvas      Optional canvas element to use to load the image into.
-//               If omitted, a canvas element is created but not attached
-//               to the DOM.   
-function divifyImage(divified, img, pixelSize, canvas) {
-    if (typeof canvas == "undefined")
-        var canvas = document.createElement('canvas');
+function divifyImage(divified, image, pixelSize) {
 
-    if (typeof img == "string") {
-        var image = new Image();        
-        image.src = img;
-    }
-
-    image.onload = function () {
+    var divifyOnLoad = function () {
         var width = this.width;
         var height = this.height;
         canvas.width = width;
@@ -35,14 +30,53 @@ function divifyImage(divified, img, pixelSize, canvas) {
         var pix = imgd.data;
 
         divify(pix, divified, pixelSize, width);
+    }  
+
+    if (typeof image == "string") {
+        var canvas = document.createElement('canvas');
+        var img = new Image();        
+        img.src = image;
+        img.onload = divifyOnLoad;
+    } else if (image.tagName == 'IMG') {
+        var canvas = document.createElement('canvas');
+        image.onload = divifyOnLoad;
+    } else if (image.tagName == 'CANVAS') {
+        var context = image.getContext('2d');
+        var imgd = context.getImageData(0, 0, image.width, image.height);
+        divify(imgd.data, divified, pixelSize, image.width);
+    } else if (image instanceof ImageData) {
+        divify(image.data, divified, pixelSize, image.width);
+    }
+}
+
+
+// Useful for creating multiple pixelations from the one image without
+// having to continually create canvases/extract pixels.
+function imageToCanvas(image, canvas, callback) {
+    if (typeof image == "string") {
+        var img = new Image();        
+        img.src = image; 
+    } else {
+        var img = image;
+    }
+
+    img.onload = function() {
+        var width = this.width;
+        var height = this.height;
+        canvas.width = width;
+        canvas.height = height;
+        var context = canvas.getContext('2d');
+        context.drawImage(this, 0, 0);
+        var imgd = context.getImageData(0, 0, img.width, img.height);
+        callback(imgd);
     }
 }
 
 
 function divify(pix, divified, pixelSize, width) {
     // It is much faster to insert a single element with a large
-    // number of child elements than to directly them.
-    var divs = ['<div>'];
+    // number of child elements than to directly insert them all.
+    var divs = ['<div id="divified',DIVCOUNTER,'">'];
     
     if (pixelSize == 1)
         addDivs1(divs, pix);
@@ -55,15 +89,18 @@ function divify(pix, divified, pixelSize, width) {
 
     makeStyleSheet(pixelSize);
     divified.innerHTML = divs.join('');
+    DIVCOUNTER++;
 }
 
 
 // Make a style sheet and attach to the DOM rather than style the divs
 // directly, to facilitate user styling once the div is created.
+// We need to make the styles relative to the current divified div in
+// case multiple are being made on the same page. 
 function makeStyleSheet(pixelSize) {
     var sheet = document.createElement('style');
     sheet.id = 'divified-styles';
-    sheet.innerHTML = '.p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; }';
+    sheet.innerHTML = '#divified'+DIVCOUNTER+' .p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; }';
     document.body.appendChild(sheet);
 }
 
