@@ -5,13 +5,7 @@
   <title>divify test</title>
   <script type="text/javascript" src="divify.js"></script>
   <style type="text/css">
-    #canvas {
-        margin: 0 5em;
-        display: inline-block;
-        vertical-align: top;
-    }
-
-    #divified {
+    #original, #divified {
         margin: 0 5em;
         display: inline-block;
         vertical-align: top;
@@ -19,12 +13,14 @@
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <canvas id="original"></canvas>
   <div id="divified"></div>
   <script type="text/javascript">
-    divifyImage(document.getElementById('divified'), 
-                'images/mt_townsend.jpg',
-                10,
-                document.getElementById('canvas'));
+    var canvas = document.getElementById('original');
+    var divified = document.getElementById('divified');
+    var test = function(imgd) {
+        divifyImage(divified, imgd, 10);
+    }
+    imageToCanvas('images/mt_townsend.jpg', canvas, test);
   </script>
 </body>

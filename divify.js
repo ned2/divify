@@ -1,13 +1,23 @@
+// The number of pixelated divs added so far.
+// used to create specific syle rules for each div.
 var DIVCOUNTER = 0;
 
-// Pixelate an image into a grid of divs. If the image is not square
-// you'll end up with an image with a slightly different height.
+
+// Pixelate an image into a grid of divs. The width of the image must
+// be a multiple of the pixel size, if the height is not, the image is
+// cropped to the next lowest multiple.
+//
 //
 // Pixelating with a pixelSize of 1 will work (and result in a perfect
 // looking replication of the image) but for non-trivial image sizes
-// will result in a LARGE number of DOM elements, the rendering of
-// which could cause your browser to choke. Success has been had with
-// getting a 500x375 image rendering on Chrome and Opera.
+// this will result in a LARGE number of DOM elements, the rendering
+// of which could cause your browser to choke. Success has been had
+// with getting a 500x375 image rendering on Chrome and Opera.
+//
+// In general styling of the pixels is left to the user afterwards via
+// the generated stylesheet, with the exception of margin and border,
+// as these alter the width of the final pixelated image and this needs
+// the parent div needs to have its width updated to reflect this. 
 //
 // Parameters: 
 //   divified    The target element to place the grid in.
@@ -16,7 +26,8 @@ var DIVCOUNTER = 0;
 //               an ImageData object -- the result of context.getImageData()
 //               to facillitate not having to get this multiple times. 
 //   pixelSize   The size of the pixels, must be a multiple of the image width.
-function divifyImage(divified, image, pixelSize) {
+//   margin      Optional margin to add to pixels. 'explodes' the image.
+function divifyImage(divified, image, pixelSize, margin) {
 
     var divifyOnLoad = function () {
         var width = this.width;
@@ -29,7 +40,7 @@ function divifyImage(divified, image, pixelSize) {
         var imgd = context.getImageData(0, 0, width, height);
         var pix = imgd.data;
 
-        divify(pix, divified, pixelSize, width);
+        divify(pix, divified, pixelSize, width, margin);
     }  
 
     if (typeof image == "string") {
@@ -45,13 +56,14 @@ function divifyImage(divified, image, pixelSize) {
         var imgd = context.getImageData(0, 0, image.width, image.height);
         divify(imgd.data, divified, pixelSize, image.width);
     } else if (image instanceof ImageData) {
-        divify(image.data, divified, pixelSize, image.width);
+        divify(image.data, divified, pixelSize, image.width, margin);
     }
 }
 
 
-// Useful for creating multiple pixelations from the one image without
-// having to continually create canvases/extract pixels.
+// Useful if you want to display the source canvas and/or creating
+// multiple pixelations from the one image without having to
+// continually create canvases/extract pixels.
 function imageToCanvas(image, canvas, callback) {
     if (typeof image == "string") {
         var img = new Image();        
@@ -73,7 +85,9 @@ function imageToCanvas(image, canvas, callback) {
 }
 
 
-function divify(pix, divified, pixelSize, width) {
+function divify(pix, divified, pixelSize, width, margin) {
+    var margin = margin || 0;
+
     // It is much faster to insert a single element with a large
     // number of child elements than to directly insert them all.
     var divs = ['<div id="divified',DIVCOUNTER,'">'];
@@ -85,9 +99,10 @@ function divify(pix, divified, pixelSize, width) {
 
     divs.push('<div style="clear:both"></div>');
     divs.push('</div>');
-    divified.style.width = width + 'px';
 
-    makeStyleSheet(pixelSize);
+
+    divified.style.width = (width + 2*margin*width/pixelSize)+ 'px';
+    makeStyleSheet(pixelSize, margin);
     divified.innerHTML = divs.join('');
     DIVCOUNTER++;
 }
@@ -97,10 +112,10 @@ function divify(pix, divified, pixelSize, width) {
 // directly, to facilitate user styling once the div is created.
 // We need to make the styles relative to the current divified div in
 // case multiple are being made on the same page. 
-function makeStyleSheet(pixelSize) {
+function makeStyleSheet(pixelSize, margin) {
     var sheet = document.createElement('style');
     sheet.id = 'divified-styles';
-    sheet.innerHTML = '#divified'+DIVCOUNTER+' .p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; }';
+    sheet.innerHTML = '#divified'+DIVCOUNTER+' .p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; margin: '+margin+'px}';
     document.body.appendChild(sheet);
 }
 
@@ -127,8 +142,10 @@ function addDivs(divs, pix, l, width) {
     }
 
     var i = 0;
-    var n = pix.length;
-
+    var height = pix.length/4/width;
+    var croppedHeight = height - height % l;
+    var n = 4*width*croppedHeight;
+    
     while(i < n) {
         var x = Math.floor(i/4); 
 
@@ -140,10 +157,17 @@ function addDivs(divs, pix, l, width) {
             i += 4*(l-1)*width;
         }
 
+        // check that we haven't jumped off the edge of the image
+        // or we've gone over the to the nearest pixel height 
+        if (i >= n)
+            break;
+
         var r = averageCol(i, 0);
         var g = averageCol(i, 1);
         var b = averageCol(i, 2);
         var a = averageCol(i, 3);
+        if (isNaN(r))
+            var z = 1;
         divs.push('<div class="p" style="background-color:rgba(');
         divs.push([r,g,b,a].join(','));
         divs.push(')"></div>');
