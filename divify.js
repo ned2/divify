@@ -26,8 +26,9 @@ var DIVCOUNTER = 0;
 //               an ImageData object -- the result of context.getImageData()
 //               to facillitate not having to get this multiple times. 
 //   pixelSize   The size of the pixels, must be a multiple of the image width.
-//   margin      Optional margin to add to pixels. 'explodes' the image.
-function divifyImage(divified, image, pixelSize, margin) {
+//   styles      Optional {style:value} object of CSS styles to be applied 
+//               to pixels. Note that only a single value is supported for margin. 
+function divifyImage(divified, image, pixelSize, styles) {
 
     var divifyOnLoad = function () {
         var width = this.width;
@@ -40,7 +41,7 @@ function divifyImage(divified, image, pixelSize, margin) {
         var imgd = context.getImageData(0, 0, width, height);
         var pix = imgd.data;
 
-        divify(pix, divified, pixelSize, width, margin);
+        divify(pix, divified, pixelSize, width, styles);
     }  
 
     if (typeof image == "string") {
@@ -54,9 +55,9 @@ function divifyImage(divified, image, pixelSize, margin) {
     } else if (image.tagName == 'CANVAS') {
         var context = image.getContext('2d');
         var imgd = context.getImageData(0, 0, image.width, image.height);
-        divify(imgd.data, divified, pixelSize, image.width);
+        divify(imgd.data, divified, pixelSize, image.width, styles);
     } else if (image instanceof ImageData) {
-        divify(image.data, divified, pixelSize, image.width, margin);
+        divify(image.data, divified, pixelSize, image.width, styles);
     }
 }
 
@@ -85,8 +86,10 @@ function imageToCanvas(image, canvas, callback) {
 }
 
 
-function divify(pix, divified, pixelSize, width, margin) {
-    var margin = margin || 0;
+function divify(pix, divified, pixelSize, width, styles) {
+    var styles = styles || {};
+    var margin = parseInt(styles.margin) || 0;
+    var border = parseInt(styles.border) || 0;
 
     // It is much faster to insert a single element with a large
     // number of child elements than to directly insert them all.
@@ -101,8 +104,10 @@ function divify(pix, divified, pixelSize, width, margin) {
     divs.push('</div>');
 
 
-    divified.style.width = (width + 2*margin*width/pixelSize)+ 'px';
-    makeStyleSheet(pixelSize, margin);
+    var extraMargin = 2*margin*width/pixelSize;
+    var extraBorder = 2*border*width/pixelSize;
+    divified.style.width = (width + extraMargin + extraBorder)+ 'px';
+    makeStyleSheet(pixelSize, styles);
     divified.innerHTML = divs.join('');
     DIVCOUNTER++;
 }
@@ -112,10 +117,15 @@ function divify(pix, divified, pixelSize, width, margin) {
 // directly, to facilitate user styling once the div is created.
 // We need to make the styles relative to the current divified div in
 // case multiple are being made on the same page. 
-function makeStyleSheet(pixelSize, margin) {
+function makeStyleSheet(pixelSize, styles) {
+    var stylesArray = [];
+
+    for (property in styles)
+        stylesArray.push(property + ':' + styles[property] + ';');
+
     var sheet = document.createElement('style');
     sheet.id = 'divified-styles';
-    sheet.innerHTML = '#divified'+DIVCOUNTER+' .p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; margin: '+margin+'px}';
+    sheet.innerHTML = '#divified'+DIVCOUNTER+' .p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; ' + stylesArray.join(' ') + '}';
     document.body.appendChild(sheet);
 }
 

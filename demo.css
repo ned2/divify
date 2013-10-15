@@ -1,9 +1,4 @@
 .demo-pix {
     margin: 0 auto;
-    display: inline-block;
-    vertical-align: top;
+    display: block;
 }
-
-#rounded .p { border-radius: 5px }
-
-#exploded .p { margin: 1px }
