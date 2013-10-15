@@ -90,6 +90,7 @@ function divify(pix, divified, pixelSize, width, styles) {
     var styles = styles || {};
     var margin = parseInt(styles.margin) || 0;
     var border = parseInt(styles.border) || 0;
+    var padding = parseInt(styles.padding) || 0;
 
     // It is much faster to insert a single element with a large
     // number of child elements than to directly insert them all.
@@ -106,9 +107,10 @@ function divify(pix, divified, pixelSize, width, styles) {
 
     var extraMargin = 2*margin*width/pixelSize;
     var extraBorder = 2*border*width/pixelSize;
+    var extraPadding = 2*padding*width/pixelSize;
     divified.style.width = (width + extraMargin + extraBorder)+ 'px';
     makeStyleSheet(pixelSize, styles);
-    divified.innerHTML = divs.join('');
+    divified.innerHTML = divs.join('') + divified.innerHTML;
     DIVCOUNTER++;
 }
 
@@ -125,16 +127,20 @@ function makeStyleSheet(pixelSize, styles) {
 
     var sheet = document.createElement('style');
     sheet.id = 'divified-styles';
-    sheet.innerHTML = '#divified'+DIVCOUNTER+' .p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; ' + stylesArray.join(' ') + '}';
+    sheet.innerHTML = '.p { float: left }'+'#divified'+DIVCOUNTER+' .p { width: '+pixelSize+'px; height: '+pixelSize+'px; ' + stylesArray.join(' ') + '}';
     document.body.appendChild(sheet);
 }
 
 
 // Dedicated function for when the pixel length is 1. No pixelation is
-// required.
+// required. Just recreates the image. With divs. Probably the most
+// inefficient image rendering method there is. 
 function addDivs1(divs, pix) {
     for (var i = 0, n = pix.length; i < n; i += 4) {
-        var r = pix[i], g = pix[i+1], b = pix[i+2], a = pix[i+3];
+        var r = pix[i  ];
+        var g = pix[i+1];
+        var b = pix[i+2];
+        var a = pix[i+3];
         divs.push('<div class="p" style="background-color:rgba(');
         divs.push([r,g,b,a].join(','));
         divs.push(')"></div>');

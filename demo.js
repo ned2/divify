@@ -1,13 +1,13 @@
 $(document).ready(function() {
 
     var divifyAll = function(imgData) { 
-        divifyImage($('#pixelated1')[0], imgData, 5); 
-        divifyImage($('#pixelated2')[0], imgData, 10); 
-        divifyImage($('#rounded')[0], imgData, 10, {'border-radius':'5px'}); 
-        divifyImage($('#exploded')[0], imgData, 10, {'margin':'1px'}); 
-        divifyImage($('#bordered')[0], imgData, 10, {'border':'1px solid black'}); 
-        divifyImage($('#exploded-bordered')[0], imgData, 10, {'border':'1px solid black', 'margin':'1px'}); 
-    }
+        divifyImage($('#pix1')[0], imgData, 5); 
+        divifyImage($('#pix2')[0], imgData, 10); 
+        divifyImage($('#pix3')[0], imgData, 10, {'border-radius':'5px'}); 
+        divifyImage($('#pix4')[0], imgData, 10, {'margin':'1px'}); 
+        divifyImage($('#pix5')[0], imgData, 10, {'border':'1px solid black'}); 
+        divifyImage($('#pix6')[0], imgData, 10, {'border':'1px solid black', 'margin':'1px'}); 
+        divifyImage($('#pix7')[0], imgData, 10, {'border-radius':'5px', 'box-shadow':'3px 3px 3px', 'margin':'1px'});     }
 
     var canvas = document.getElementById('original');
     imageToCanvas('images/mt_townsend.jpg', canvas, divifyAll);

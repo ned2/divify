@@ -1,4 +1,31 @@
-.demo-pix {
-    margin: 0 auto;
+.demo-pix { 
     display: block;
+    margin: 2em 0;
+}
+
+.tool { font-family: monospace }
+
+.code { 
+    margin: 1em 0;
+    max-width: 40em;
+}
+
+.code ul {
+    background-color: #AAA;
+    margin: 0;
+    padding: .5em;
+}
+
+.code li { 
+    list-style: none;
+    font-family: monospace;
+}
+
+.code .indent1 { margin-left: 3em }
+.code .indent2 { margin-left: 6em}
+
+.caption { 
+    text-align: center;
+    margin: .2em 0 1em 0;
+    font-style: italic;
 }

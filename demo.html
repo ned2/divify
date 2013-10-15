@@ -1,19 +1,105 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>divify demo</title>
+  <title>divify</title>
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script type="text/javascript" src="divify.js"></script>
   <script type="text/javascript" src="demo.js"></script>
   <link href="demo.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-  <canvas id="original" class="demo-pix"></canvas>
-  <div id="pixelated1" class="demo-pix"></div>
-  <div id="pixelated2" class="demo-pix"></div>
-  <div id="rounded" class="demo-pix"></div>
-  <div id="exploded" class="demo-pix"></div>
-  <div id="bordered" class="demo-pix"></div>
-  <div id="exploded-bordered" class="demo-pix"></div>
+  <p>Here I present <span class="tool">divify</span>, a JavaScript
+    tool for pixelating an image into a grid of divs. Firstly, why in
+    the hell would you want to do this?
+
+    <ol>
+      <li>To illustrate the power of HTML/CSS. It's pretty cool that this works.</li>
+      <li>We can use pure CSS to get some kinda cool effects.</li>
+      <li>Just because.</li>
+    </ol>
+
+    <p>Here is an image loaded onto a canvas element:</p>
+
+    <canvas id="original" class="demo-pix"></canvas>
+    
+    <p>And here is a pixelated version using <span class="tool">divify</span>:</p> 
+
+    <div id="pix1" class="demo-pix"></div>
+
+    <p><span class="tool">divify</span> converts the image into a grid
+      of divs, each with their background color set to the average
+      color from that area of the original image. This makes use of
+      the <span class="tool">getImageData()</span> which can be used
+      like so to access the pixel data of an image:</p>
+
+    <div class="code">
+      <ul>
+        <li>var canvas = document.createElement('canvas');</li>
+        <li>var img = new Image(); </li>
+        <li>img.src = url;</li>
+        <li>img.onload = function() {</li>
+        <li class="indent1"></li>
+        <li class="indent1">var context = canvas.getContext('2d');</li>
+        <li class="indent1">var imageData = context.getImageData(0, 0, this.width, this.height);</li>
+        <li class="indent1"></li>      
+        <li class="indent1">var pixels = imageData.data;</li>
+        <li class="indent1">for (var i = 0, n = pixels.length; i < n; i += 4) {</li>
+        <li class="indent2">var r = pixels[i&nbsp;&nbsp;]; // red</li>
+        <li class="indent2">var g = pixels[i+1]; // green</li>
+        <li class="indent2">var b = pixels[i+2]; // blue</li>
+        <li class="indent2">var a = pixels[i+3]; // alpha</li>
+        <li class="indent1">}</li>
+        <li>}</li>
+      </ul>
+      <p class="caption">Note that we have to do everything with the
+      image data in its onload callback otherwise the image won't have
+      finished loading.</p>
+    </div>
+
+  <p>In the previous image the 'pixels' were 5 pixels
+  wide. <span class="tool">divify</span> lets you specify the pixel
+  width, so we can increase the pixelation factor:</p>
+
+  <div id="pix2" class="demo-pix">
+    <p class="caption">Pixels of size 10 pixels.</p>
+  </div>
+
+
+  <p>Now the fun begins (for some definitions of fun). We can apply
+  arbitrary CSS styles the pixel divs:</p>
+
+  <div id="pix3" class="demo-pix">
+    <p class="caption">border-radius</p>
+  </div>
+
+  <div id="pix4" class="demo-pix">
+    <p class="caption">margin</p>
+  </div>
+
+  <div id="pix5" class="demo-pix">
+    <p class="caption">border</p>
+  </div>
+
+  <div id="pix6" class="demo-pix">
+    <p class="caption">margin and border</p>
+  </div>
+
+  <div id="pix7" class="demo-pix">
+    <p class="caption">border-radius, margin and drop shadow. Oh my.</p>
+  </div>
+
+  <p>Upload your own image and styles in the following form. margins
+    and padding are limited to being a single value specifying all
+    four directions.</p>
+
+  <form>
+    <input type="file" name="file" size="40">
+    <input id="pixel-size-input"> 
+    <textarea id="styles-input">Comma separated list of style:value pairs</textarea>
+  </form>
+
+  <div id="user" class="demo-pix"></div>
+
+  
 </body>
 </html>
