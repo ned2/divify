@@ -1,33 +1,27 @@
 // The number of pixelated divs added so far.
-// used to create specific syle rules for each div.
+// used to create specific style rules for each div.
 var DIVCOUNTER = 0;
 
 
-// Pixelate an image into a grid of divs. The width of the image must
-// be a multiple of the pixel size, if the height is not, the image is
-// cropped to the next lowest multiple.
-//
-//
-// Pixelating with a pixelSize of 1 will work (and result in a perfect
-// looking replication of the image) but for non-trivial image sizes
-// this will result in a LARGE number of DOM elements, the rendering
-// of which could cause your browser to choke. Success has been had
-// with getting a 500x375 image rendering on Chrome and Opera.
-//
-// In general styling of the pixels is left to the user afterwards via
-// the generated stylesheet, with the exception of margin and border,
-// as these alter the width of the final pixelated image and this needs
-// the parent div needs to have its width updated to reflect this. 
-//
-// Parameters: 
-//   divified    The target element to place the grid in.
-//   img         target to pixelate. Either an image URL, img element or 
-//               canvas element with image loaded using drawImage, or
-//               an ImageData object -- the result of context.getImageData()
-//               to facillitate not having to get this multiple times. 
-//   pixelSize   The size of the pixels, must be a multiple of the image width.
-//   styles      Optional {style:value} object of CSS styles to be applied 
-//               to pixels. Note that only a single value is supported for margin. 
+/* Pixelates an image into a grid of divs.
+ *
+ * Parameters: 
+ *
+ *   divified    The target element to place the div of divs in.
+ *   img         Target to pixelate. Either an image URL, <img> element, 
+ *               canvas element with image loaded using drawImage(), or
+ *               an ImageData object -- the result of context.getImageData()
+ *               to facillitate not having to get this multiple times. 
+ *   pixelSize   The size of the pixels, must be a factor of the image width.
+ *               If it is not a factor of the image height, the height of the
+ *               pixelated image will be cropped to the closest multiple.
+ *               A size of 1 is valid but results in a large number of divs and 
+ *               may crash your broswer.
+ *   styles      Optional {style:value} object of CSS styles to be applied 
+ *               to pixels. Note that only a single value is supported for 
+ *               margin and padding. 
+ */
+
 function divifyImage(divified, image, pixelSize, styles) {
 
     var divifyOnLoad = function () {
@@ -51,18 +45,24 @@ function divifyImage(divified, image, pixelSize, styles) {
         img.onload = divifyOnLoad;
     } else if (image.tagName == 'IMG') {
         var canvas = document.createElement('canvas');
-        image.onload = divifyOnLoad;
-    } else if (image.tagName == 'CANVAS') {
-        var context = image.getContext('2d');
+        canvas.width = image.width;
+        canvas.height = image.height;
+        var context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0);
         var imgd = context.getImageData(0, 0, image.width, image.height);
         divify(imgd.data, divified, pixelSize, image.width, styles);
+    } else if (image.tagName == 'CANVAS') {
+        var canvas = image;
+        var context = canvas.getContext('2d');
+        var imgd = context.getImageData(0, 0, canvas.width, canvas.height);
+        divify(imgd.data, divified, pixelSize, canvas.width, styles);
     } else if (image instanceof ImageData) {
         divify(image.data, divified, pixelSize, image.width, styles);
     }
 }
 
 
-// Useful if you want to display the source canvas and/or creating
+// Useful if you want to display the source canvas and/or for creating
 // multiple pixelations from the one image without having to
 // continually create canvases/extract pixels.
 function imageToCanvas(image, canvas, callback) {
@@ -91,10 +91,14 @@ function divify(pix, divified, pixelSize, width, styles) {
     var margin = parseInt(styles.margin) || 0;
     var border = parseInt(styles.border) || 0;
     var padding = parseInt(styles.padding) || 0;
+    var pixelSize = parseInt(pixelSize);
 
-    // It is much faster to insert a single element with a large
-    // number of child elements than to directly insert them all.
-    var divs = ['<div id="divified',DIVCOUNTER,'">'];
+    if (isNaN(pixelSize))
+        pixelSize = 10;
+
+    // It's much faster to insert a single element with a large number
+    // of child elements than to directly insert them all.
+    var divs = ['<div id="divified-',DIVCOUNTER,'" class="divified">'];
     
     if (pixelSize == 1)
         addDivs1(divs, pix);
@@ -110,7 +114,9 @@ function divify(pix, divified, pixelSize, width, styles) {
     var extraPadding = 2*padding*width/pixelSize;
     divified.style.width = (width + extraMargin + extraBorder)+ 'px';
     makeStyleSheet(pixelSize, styles);
-    divified.innerHTML = divs.join('') + divified.innerHTML;
+
+    divs.push(divified.innerHTML)
+    divified.innerHTML = divs.join('')
     DIVCOUNTER++;
 }
 
@@ -126,8 +132,8 @@ function makeStyleSheet(pixelSize, styles) {
         stylesArray.push(property + ':' + styles[property] + ';');
 
     var sheet = document.createElement('style');
-    sheet.id = 'divified-styles';
-    sheet.innerHTML = '.p { float: left }'+'#divified'+DIVCOUNTER+' .p { width: '+pixelSize+'px; height: '+pixelSize+'px; ' + stylesArray.join(' ') + '}';
+    sheet.id = 'divified-styles-'+DIVCOUNTER;
+    sheet.innerHTML = '#divified-'+DIVCOUNTER+' .p { float: left; width: '+pixelSize+'px; height: '+pixelSize+'px; ' + stylesArray.join(' ') + '}';
     document.body.appendChild(sheet);
 }
 

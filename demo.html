@@ -9,12 +9,19 @@
 </head>
 <body>
   <p>Here I present <span class="tool">divify</span>, a JavaScript
-    tool for pixelating an image into a grid of divs. Firstly, why in
-    the hell would you want to do this?
+    tool for pixelating an image into a grid of divs. It works by
+    converting the image into a div of floated divs, each with their
+    background color set to the average color from that area of the
+    original image and the parent div's width set to the width of the 
+    original image.</p>
+
+    <p>Firstly, why in the hell would you want to do this?</p>
 
     <ol>
-      <li>To illustrate the power of HTML/CSS. It's pretty cool that this works.</li>
-      <li>We can use pure CSS to get some kinda cool effects.</li>
+      <li>To illustrate the power of HTML/CSS. It's pretty cool that
+      this works.</li>
+      <li>We can then use CSS to style the pixels to get some kinda
+      cool effects.</li>
       <li>Just because.</li>
     </ol>
 
@@ -26,9 +33,7 @@
 
     <div id="pix1" class="demo-pix"></div>
 
-    <p><span class="tool">divify</span> converts the image into a grid
-      of divs, each with their background color set to the average
-      color from that area of the original image. This makes use of
+    <p><span class="tool">divify</span> This makes use of
       the <span class="tool">getImageData()</span> which can be used
       like so to access the pixel data of an image:</p>
 
@@ -88,17 +93,47 @@
     <p class="caption">border-radius, margin and drop shadow. Oh my.</p>
   </div>
 
-  <p>Upload your own image and styles in the following form. margins
-    and padding are limited to being a single value specifying all
-    four directions.</p>
+  <p>Try it out below with your own image, then style away with your
+  DOM inspector of choice. One interesting thing is that changing the
+  float value from 'left' to right' has the effect of flipping the
+  image horizontally. And yes, you can set the pixel length to one.
+  This of course results in a rather large number of divs which need
+  rendering, so if your browser does not choke on this, you'll wind up
+  with a remarkably faithful reproduction of the image. I managed to
+  get a 500x300 image rendering in Chrome and Opera. Opera was
+  surprisingly speedy. Firefox got there eventually.</p>
 
-  <form>
-    <input type="file" name="file" size="40">
-    <input id="pixel-size-input"> 
-    <textarea id="styles-input">Comma separated list of style:value pairs</textarea>
+  <form id="divify-form" onsubmit="return false;">
+    <div id="html-popup" class="popup" style="display: none;">
+      <p>Divified CSS</p>
+    </div>
+    <div id="css-popup" class="popup" style="display: none;">
+      <p>Divified CSS</p>
+    </div>
+
+    <ul>
+      <li><input id="divify-file-input" type="file" name="file"></li>
+      <li id="image-width">
+        <div class="input-label">Width:</div>
+        <div class="input-value"></div>
+      </li>
+      <li id="image-height">
+        <div class="input-label">Height:</div>
+        <div class="input-value"></div>
+      </li>
+      <li>
+        <div class="input-label">Pixel size:</div>
+        <div class="input-value"><input id="pixel-size-input" size="3"> (must be a factor of the width)</div>
+      </li>
+      <li>
+        <input id="submit-divify" type="submit" value="Divify!">
+        <input id="get-html" type="submit" value="HTML" style="display: none;">
+        <input id="get-css" type="submit" value="CSS" style="display: none;">
+      </li>
+    </ul>
   </form>
 
-  <div id="user" class="demo-pix"></div>
+  <div id="user-pix" class="demo-pix"></div>
 
   
 </body>
