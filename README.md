@@ -8,4 +8,5 @@ original image and the parent div's width set to the width of the
 original image.
 
 For usage instructions see divify.js and for a more elaborated
-overview, see demo.html.
+overview, see demo.html. A live version is available here: 
+http://www.nedned.net/index.py?x=divify.
