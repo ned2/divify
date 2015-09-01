@@ -2,30 +2,26 @@
 <head>
   <meta charset="UTF-8">
   <title>divify</title>
-  <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script type="text/javascript" src="divify.js"></script>
   <script type="text/javascript" src="demo.js"></script>
   <link href="demo.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+
+  <h1>divify</h1>
+
   <p>Here I present <span class="tool">divify</span>, a JavaScript
     tool for pixelating an image into a grid of divs. It works by
-    converting the image into a div of floated divs, each with their
-    background color set to the average color from that area of the
-    original image and the parent div's width set to the width of the 
-    original image.</p>
+    converting the image into a div containing a sequence of child
+    pixel divs, each left-floated and with its background color set to
+    the average color from that area of the original image. The width
+    of the parent div is then set to the width of the original image,
+    making them all line up correctly. Why exactly would we want to do
+    this? I'm not not entirely sure. If you can think of any vaguely
+    useful application, I'm all ears.</p>
 
-    <p>Firstly, why in the hell would you want to do this?</p>
-
-    <ol>
-      <li>To illustrate the power of HTML/CSS. It's pretty cool that
-      this works.</li>
-      <li>We can then use CSS to style the pixels to get some kinda
-      cool effects.</li>
-      <li>Just because.</li>
-    </ol>
-
-    <p>Here is an image loaded onto a canvas element:</p>
+    <p>So without further ado, here is an image loaded onto a canvas:</p>
 
     <canvas id="original" class="demo-pix"></canvas>
     
@@ -33,9 +29,9 @@
 
     <div id="pix1" class="demo-pix"></div>
 
-    <p><span class="tool">divify</span> This makes use of
-      the <span class="tool">getImageData()</span> which can be used
-      like so to access the pixel data of an image:</p>
+    <p><span class="tool">divify</span> makes use of the canvas,
+      which, once loaded with an image, can be used to extract the
+      RGBA values for each pixel like so:</p>
 
     <div class="code">
       <ul>
@@ -70,8 +66,7 @@
   </div>
 
 
-  <p>Now the fun begins (for some definitions of fun). We can apply
-  arbitrary CSS styles the pixel divs:</p>
+  <p>Now we can apply arbitrary CSS styles to the pixel divs:</p>
 
   <div id="pix3" class="demo-pix">
     <p class="caption">border-radius</p>
@@ -90,25 +85,30 @@
   </div>
 
   <div id="pix7" class="demo-pix">
-    <p class="caption">border-radius, margin and drop shadow. Oh my.</p>
+    <p class="caption">border-radius, margin *and* box-shadow. Oh my.</p>
   </div>
 
-  <p>Try it out below with your own image, then style away with your
-  DOM inspector of choice. One interesting thing is that changing the
-  float value from 'left' to right' has the effect of flipping the
-  image horizontally. And yes, you can set the pixel length to one.
-  This of course results in a rather large number of divs which need
+  <p> One interesting thing is that changing the float value from
+  'left' to 'right' has the effect of flipping the image
+  horizontally. And yes, you can set the pixel length to one.  This of
+  course results in a rather large number of divs which need
   rendering, so if your browser does not choke on this, you'll wind up
-  with a remarkably faithful reproduction of the image. I managed to
-  get a 500x300 image rendering in Chrome and Opera. Opera was
-  surprisingly speedy. Firefox got there eventually.</p>
+  with a remarkably faithful reproduction of the image.</p>
+
+  <p>The code is up
+  on <a href="http://github.com/ned2/divify">GitHub</a>, and you can
+  try it out below with your own image. Note that if necessary the
+  image will be cropped so the height and width are multiples of
+  the pixel size.</p>
 
   <form id="divify-form" onsubmit="return false;">
     <div id="html-popup" class="popup" style="display: none;">
-      <p>Divified CSS</p>
+      <p>Divified HTML</p>
+      <textarea></textarea>
     </div>
     <div id="css-popup" class="popup" style="display: none;">
       <p>Divified CSS</p>
+      <textarea></textarea>
     </div>
 
     <ul>
@@ -123,7 +123,7 @@
       </li>
       <li>
         <div class="input-label">Pixel size:</div>
-        <div class="input-value"><input id="pixel-size-input" size="3"> (must be a factor of the width)</div>
+        <div class="input-value"><input id="pixel-size-input" size="3">
       </li>
       <li>
         <input id="submit-divify" type="submit" value="Divify!">
@@ -132,9 +132,6 @@
       </li>
     </ul>
   </form>
-
   <div id="user-pix" class="demo-pix"></div>
-
-  
 </body>
 </html>

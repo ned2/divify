@@ -1,5 +1,7 @@
+//trying to get brickwork-like effect
+//$('#divified-4 .p:nth-child(2n)').each(function() { val col= $(this).css('background-color'); $(this).css({'border-left':'1px solid '+col}); })
+
 $(document).ready(function() {
-    // roatated images not working??
 
     $("body").click(function(event){
         $(".popup").hide();
@@ -36,12 +38,12 @@ $(document).ready(function() {
         reader.readAsDataURL(file);
     });
 
-    $('#get-html').click(function(){
+    $('#get-html').click(function(event){
         event.stopPropagation();
         $('#html-popup').show();
     });
 
-    $('#get-css').click(function(){
+    $('#get-css').click(function(event){
         event.stopPropagation();
         $('#css-popup').show();
     });
@@ -60,20 +62,20 @@ $(document).ready(function() {
         $('#get-html').show();
         $('#get-css').show();
 
-        $('#html-popup').append($('<textarea>').html(html));
-        $('#css-popup').append($('<textarea>').html(css));
+        $('#html-popup textarea').val(html);
+        $('#css-popup textarea').val(css);
     });
 
     var divifyAll = function(imgData) { 
         divifyImage($('#pix1')[0], imgData, 5); 
         divifyImage($('#pix2')[0], imgData, 10); 
-        divifyImage($('#pix3')[0], imgData, 10, {'border-radius':'5px'}); 
-        divifyImage($('#pix4')[0], imgData, 10, {'margin':'1px'}); 
-        divifyImage($('#pix5')[0], imgData, 10, {'border':'1px solid black'}); 
-        divifyImage($('#pix6')[0], imgData, 10, {'border':'1px solid black', 'margin':'1px'}); 
+        divifyImage($('#pix3')[0], imgData, 5, {'border-radius':'5px'}); 
+        divifyImage($('#pix4')[0], imgData, 5, {'margin':'1px'}); 
+        divifyImage($('#pix5')[0], imgData, 5, {'border':'1px solid black'}); 
+        divifyImage($('#pix6')[0], imgData, 5, {'border':'1px solid black', 'margin':'1px'}); 
         divifyImage($('#pix7')[0], imgData, 10, {'border-radius':'5px', 'box-shadow':'3px 3px 3px', 'margin':'1px'});     }
 
     var canvas = document.getElementById('original');
-    imageToCanvas('images/mt_townsend.jpg', canvas, divifyAll);
+    imageToCanvas('images/seattle_small.jpg', canvas, divifyAll);
 
 });
