@@ -1,4 +1,4 @@
-import { divify, loadImageData, type DivifyResult } from "divify";
+import { type DivifyResult, divify, loadImageData } from "divify";
 import "divify/element";
 
 const $ = <T extends HTMLElement>(selector: string): T => {

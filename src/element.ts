@@ -10,8 +10,14 @@
  */
 import { divify } from "./divify.js";
 
+declare global {
+  interface HTMLElementTagNameMap {
+    "divified-image": DivifiedImage;
+  }
+}
+
 export class DivifiedImage extends HTMLElement {
-  static observedAttributes = ["src", "pixel-size", "gap"];
+  static observedAttributes = ["src", "pixel-size", "gap"] as const;
 
   #renderToken = 0;
 

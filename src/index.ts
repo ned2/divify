@@ -1,9 +1,9 @@
-export { divify, type DivifyOptions, type DivifyResult } from "./divify.js";
-export { loadImageData, type DivifySource } from "./sources.js";
+export { type DivifyOptions, type DivifyResult, divify } from "./divify.js";
 export {
-  pixelate,
-  toCSSColor,
   type ImageDataLike,
   type PixelGrid,
+  pixelate,
   type RGBA,
+  toCSSColor,
 } from "./pixelate.js";
+export { type DivifySource, loadImageData } from "./sources.js";

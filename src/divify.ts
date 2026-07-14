@@ -1,5 +1,5 @@
 import { pixelate, toCSSColor } from "./pixelate.js";
-import { isImageDataLike, loadImageData, type DivifySource } from "./sources.js";
+import { type DivifySource, isImageDataLike, loadImageData } from "./sources.js";
 import {
   addScopedPixelStyles,
   BASE_CSS,
@@ -60,7 +60,7 @@ export async function divify(
   const id = nextDivifyId();
   const container = doc.createElement("div");
   container.className = "divify";
-  container.dataset["divify"] = id;
+  container.dataset.divify = id;
   container.style.setProperty("--divify-cols", String(grid.columns));
   container.style.setProperty("--divify-pixel-size", `${pixelSize}px`);
   if (gap !== undefined) {

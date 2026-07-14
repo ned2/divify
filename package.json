@@ -8,6 +8,10 @@
     "type": "git",
     "url": "git+https://github.com/ned2/divify.git"
   },
+  "homepage": "https://github.com/ned2/divify#readme",
+  "bugs": {
+    "url": "https://github.com/ned2/divify/issues"
+  },
   "keywords": [
     "pixelate",
     "pixel-art",
@@ -32,17 +36,24 @@
     }
   },
   "sideEffects": [
-    "./dist/element.js",
-    "./src/element.ts"
+    "./dist/element.js"
   ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build && tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run typecheck && npm run lint && npm test"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.3",
     "@types/node": "^26.1.1",
     "jsdom": "^26.1.0",
     "typescript": "^5.8.3",

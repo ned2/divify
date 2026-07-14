@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pixelate, toCSSColor, type ImageDataLike } from "./pixelate.js";
+import { type ImageDataLike, pixelate, toCSSColor } from "./pixelate.js";
 
 /** Builds an ImageDataLike from rows of [r, g, b, a] tuples. */
 function makeImage(rows: number[][][]): ImageDataLike {

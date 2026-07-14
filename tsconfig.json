@@ -11,11 +11,11 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "types": ["vite/client", "node"],
+    "types": ["vite/client"],
     "paths": {
       "divify": ["./src/index.ts"],
       "divify/element": ["./src/element.ts"]
     }
   },
-  "include": ["src", "demo", "vite.config.ts"]
+  "include": ["src", "demo"]
 }

@@ -7,15 +7,19 @@ normal production standards.
 
 ## Commands
 
-| Command             | What it does                                          |
-| ------------------- | ----------------------------------------------------- |
-| `npm run dev`       | Vite dev server for the demo page (`demo/`)           |
-| `npm run build`     | Library build → `dist/` (Vite lib mode + `tsc` types) |
-| `npm test`          | Run the Vitest suite once                             |
-| `npm run test:watch`| Vitest in watch mode                                  |
-| `npm run typecheck` | `tsc --noEmit` over the whole project                 |
+| Command             | What it does                                            |
+| ------------------- | ------------------------------------------------------- |
+| `npm run dev`       | Vite dev server for the demo page (`demo/`)             |
+| `npm run build`     | Library build → `dist/` (Vite lib mode + `tsc` types)   |
+| `npm test`          | Run the Vitest suite once                               |
+| `npm run test:watch`| Vitest in watch mode                                    |
+| `npm run typecheck` | `tsc --noEmit` (src+demo, then vite.config.ts)          |
+| `npm run lint`      | Biome check (lint + format verification)                |
+| `npm run format`    | Biome check --write (applies formatting and safe fixes) |
 
-Always run `npm run typecheck && npm test` before considering a change done.
+Always run `npm run typecheck && npm run lint && npm test` before considering
+a change done. (`prepack` builds automatically, so `npm publish` can't ship a
+missing/stale `dist/`.)
 
 ## Layout
 
@@ -41,6 +45,11 @@ Always run `npm run typecheck && npm test` before considering a change done.
 ## Conventions
 
 - Strict TypeScript, ESM-only, **zero runtime dependencies**. Don't add any.
+- Formatting and linting via Biome (`biome.json`). `noNonNullAssertion` is
+  deliberately off: `!` is the idiom for `noUncheckedIndexedAccess` in the
+  hot pixel loops.
+- Node types are confined to `tsconfig.node.json` (vite.config.ts only) so
+  browser-only library code can't accidentally reference `process`/`Buffer`.
 - Relative imports use explicit `.js` extensions (`./pixelate.js`).
 - Tests live next to the code as `src/*.test.ts`. Default environment is
   node; DOM tests opt in with a `// @vitest-environment jsdom` pragma and

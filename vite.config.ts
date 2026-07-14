@@ -14,10 +14,13 @@ export default defineConfig({
       divify: path("src/index.ts"),
     },
   },
+  cacheDir: path("node_modules/.vite"),
   build: {
     outDir: path("dist"),
     emptyOutDir: true,
     copyPublicDir: false,
+    // Publish readable code; consumers' bundlers do the minifying.
+    minify: false,
     lib: {
       entry: {
         index: path("src/index.ts"),

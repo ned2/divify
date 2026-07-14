@@ -75,7 +75,7 @@ describe("divify", () => {
       pixelSize: 2,
       pixelStyles: { "border-radius": "5px" },
     });
-    const id = first.element.dataset["divify"];
+    const id = first.element.dataset.divify;
 
     const sheets = document.head.querySelectorAll("style[data-divify-styles]");
     expect(sheets).toHaveLength(1);
@@ -103,6 +103,6 @@ describe("divify", () => {
     const b = await divify(document.createElement("div"), testImage(), {
       pixelSize: 2,
     });
-    expect(a.element.dataset["divify"]).not.toBe(b.element.dataset["divify"]);
+    expect(a.element.dataset.divify).not.toBe(b.element.dataset.divify);
   });
 });
