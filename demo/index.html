@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>divify</title>
+    <link rel="stylesheet" href="demo.css" />
+    <script type="module" src="demo.ts"></script>
+  </head>
+  <body>
+    <main>
+      <h1>divify</h1>
+
+      <p>
+        Here I present <span class="tool">divify</span>, a JavaScript tool for
+        pixelating an image into a grid of divs. It works by converting the
+        image into a CSS Grid of child pixel divs, each with its background
+        color set to the average color from that area of the original image.
+        Why exactly would we want to do this? I'm not entirely sure. If you can
+        think of any vaguely useful application, I'm all ears.
+      </p>
+
+      <p>So without further ado, here is an image loaded onto a canvas:</p>
+
+      <figure>
+        <canvas id="original"></canvas>
+        <figcaption>The original, on a <code>&lt;canvas&gt;</code>.</figcaption>
+      </figure>
+
+      <p>
+        And here is a pixelated version using
+        <span class="tool">divify</span>:
+      </p>
+
+      <figure>
+        <div id="pix1"></div>
+        <figcaption>Pixels of size 5.</figcaption>
+      </figure>
+
+      <p>
+        <span class="tool">divify</span> makes use of the canvas, which, once
+        loaded with an image, can be used to extract the RGBA values for each
+        pixel like so:
+      </p>
+
+      <pre><code>const canvas = document.createElement("canvas");
+const img = new Image();
+img.src = url;
+await img.decode();
+
+canvas.width = img.naturalWidth;
+canvas.height = img.naturalHeight;
+const context = canvas.getContext("2d");
+context.drawImage(img, 0, 0);
+const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+const pixels = imageData.data;
+for (let i = 0; i &lt; pixels.length; i += 4) {
+  const r = pixels[i];     // red
+  const g = pixels[i + 1]; // green
+  const b = pixels[i + 2]; // blue
+  const a = pixels[i + 3]; // alpha
+}</code></pre>
+
+      <p>
+        In the previous image the 'pixels' were 5 pixels wide.
+        <span class="tool">divify</span> lets you specify the pixel size, so we
+        can increase the pixelation factor:
+      </p>
+
+      <figure>
+        <div id="pix2"></div>
+        <figcaption>Pixels of size 10.</figcaption>
+      </figure>
+
+      <p>Now we can apply arbitrary CSS styles to the pixel divs:</p>
+
+      <figure>
+        <div id="pix3"></div>
+        <figcaption><code>border-radius</code></figcaption>
+      </figure>
+
+      <figure>
+        <div id="pix4"></div>
+        <figcaption><code>gap</code></figcaption>
+      </figure>
+
+      <figure>
+        <div id="pix5"></div>
+        <figcaption><code>border</code></figcaption>
+      </figure>
+
+      <figure>
+        <div id="pix6"></div>
+        <figcaption><code>gap</code> and <code>border</code></figcaption>
+      </figure>
+
+      <figure>
+        <div id="pix7"></div>
+        <figcaption>
+          <code>border-radius</code>, <code>gap</code> <em>and</em>
+          <code>box-shadow</code>. Oh my.
+        </figcaption>
+      </figure>
+
+      <h2>As a web component</h2>
+
+      <p>
+        <span class="tool">divify</span> also ships a
+        <code>&lt;divified-image&gt;</code> custom element, so you can divify
+        with no JavaScript of your own. This one re-renders live as you change
+        its <code>pixel-size</code> attribute:
+      </p>
+
+      <figure>
+        <divified-image src="/george_small.jpg" pixel-size="8"></divified-image>
+        <figcaption>
+          <label>
+            pixel-size:
+            <input id="element-pixel-size" type="range" min="4" max="32" step="4" value="8" />
+            <output id="element-pixel-size-value">8</output>
+          </label>
+        </figcaption>
+      </figure>
+
+      <h2>Try it yourself</h2>
+
+      <p>
+        The code is up on
+        <a href="https://github.com/ned2/divify">GitHub</a>, and you can try it
+        out below with your own image. Note that if necessary the image will be
+        cropped so the height and width are multiples of the pixel size — and
+        that a large image with a small pixel size means a <em>lot</em> of
+        divs.
+      </p>
+
+      <form id="divify-form">
+        <ul>
+          <li>
+            <input id="divify-file-input" type="file" accept="image/*" name="file" />
+          </li>
+          <li>
+            <span class="input-label">Width:</span>
+            <span id="image-width" class="input-value"></span>
+          </li>
+          <li>
+            <span class="input-label">Height:</span>
+            <span id="image-height" class="input-value"></span>
+          </li>
+          <li>
+            <label class="input-label" for="pixel-size-input">Pixel size:</label>
+            <input id="pixel-size-input" type="number" min="1" value="10" />
+          </li>
+          <li>
+            <button id="submit-divify" type="submit">Divify!</button>
+            <button id="get-html" type="button" hidden>HTML</button>
+            <button id="get-css" type="button" hidden>CSS</button>
+          </li>
+        </ul>
+      </form>
+
+      <div id="user-pix"></div>
+
+      <dialog id="html-dialog">
+        <h2>Divified HTML</h2>
+        <textarea readonly></textarea>
+        <form method="dialog"><button>Close</button></form>
+      </dialog>
+
+      <dialog id="css-dialog">
+        <h2>Divified CSS</h2>
+        <textarea readonly></textarea>
+        <form method="dialog"><button>Close</button></form>
+      </dialog>
+    </main>
+  </body>
+</html>

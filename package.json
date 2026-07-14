@@ -1,0 +1,52 @@
+{
+  "name": "divify",
+  "version": "2.0.0",
+  "description": "A whimsical tool for pixelating an image into a grid of divs, using only CSS and divs.",
+  "license": "MIT",
+  "author": "Ned Letcher",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ned2/divify.git"
+  },
+  "keywords": [
+    "pixelate",
+    "pixel-art",
+    "image",
+    "css",
+    "divs",
+    "web-component",
+    "whimsy"
+  ],
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./element": {
+      "types": "./dist/element.d.ts",
+      "default": "./dist/element.js"
+    }
+  },
+  "sideEffects": [
+    "./dist/element.js",
+    "./src/element.ts"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "jsdom": "^26.1.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4",
+    "vitest": "^3.2.4"
+  }
+}
