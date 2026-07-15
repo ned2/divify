@@ -72,3 +72,8 @@ export function addScopedPixelStyles(
   doc.head.append(sheet);
   return css;
 }
+
+/** Removes the scoped stylesheet of the divified image identified by `id`. */
+export function removeScopedPixelStyles(doc: Document, id: string): void {
+  doc.head.querySelector(`style[data-divify-styles="${id}"]`)?.remove();
+}

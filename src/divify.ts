@@ -5,6 +5,7 @@ import {
   BASE_CSS,
   ensureBaseStyles,
   nextDivifyId,
+  removeScopedPixelStyles,
 } from "./styles.js";
 
 export interface DivifyOptions {
@@ -82,6 +83,12 @@ export async function divify(
       ? addScopedPixelStyles(doc, id, pixelStyles)
       : "";
 
+  // The replaced children can include earlier divified grids; drop their
+  // scoped sheets too, or repeated calls with pixelStyles would accumulate
+  // orphaned <style> elements in the head.
+  for (const stale of target.querySelectorAll<HTMLElement>(".divify[data-divify]")) {
+    removeScopedPixelStyles(doc, stale.dataset.divify!);
+  }
   target.replaceChildren(container);
 
   return {

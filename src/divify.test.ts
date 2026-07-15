@@ -90,6 +90,56 @@ describe("divify", () => {
     expect(sheets[0]!.textContent).toContain("border-radius: 5px;");
   });
 
+  it("removes the old scoped sheet when a target is re-divified", async () => {
+    const target = document.createElement("div");
+    document.body.append(target);
+    await divify(target, testImage(), {
+      pixelSize: 2,
+      pixelStyles: { "border-radius": "5px" },
+    });
+    const second = await divify(target, testImage(), {
+      pixelSize: 2,
+      pixelStyles: { border: "1px solid black" },
+    });
+
+    const sheets = document.head.querySelectorAll("style[data-divify-styles]");
+    expect(sheets).toHaveLength(1);
+    expect(sheets[0]!.getAttribute("data-divify-styles")).toBe(
+      second.element.dataset.divify,
+    );
+  });
+
+  it("removes the old scoped sheet even when the new call has no pixelStyles", async () => {
+    const target = document.createElement("div");
+    await divify(target, testImage(), {
+      pixelSize: 2,
+      pixelStyles: { "border-radius": "5px" },
+    });
+    await divify(target, testImage(), { pixelSize: 2 });
+    expect(document.head.querySelectorAll("style[data-divify-styles]")).toHaveLength(0);
+  });
+
+  it("leaves other targets' scoped sheets alone when re-divifying", async () => {
+    const other = document.createElement("div");
+    const kept = await divify(other, testImage(), {
+      pixelSize: 2,
+      pixelStyles: { "border-radius": "5px" },
+    });
+
+    const target = document.createElement("div");
+    await divify(target, testImage(), {
+      pixelSize: 2,
+      pixelStyles: { border: "1px solid black" },
+    });
+    await divify(target, testImage(), { pixelSize: 2 });
+
+    const sheets = document.head.querySelectorAll("style[data-divify-styles]");
+    expect(sheets).toHaveLength(1);
+    expect(sheets[0]!.getAttribute("data-divify-styles")).toBe(
+      kept.element.dataset.divify,
+    );
+  });
+
   it("returns serializable HTML and CSS", async () => {
     const target = document.createElement("div");
     const result = await divify(target, testImage(), {
