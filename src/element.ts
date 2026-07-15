@@ -23,7 +23,9 @@ export class DivifiedImage extends HTMLElement {
 
   // ARIA goes through ElementInternals rather than host attributes so a
   // consumer's own role="..." / aria-label="..." on the element always wins
-  // (host attributes take precedence over internals automatically).
+  // (host attributes take precedence over internals automatically). This
+  // claims the element's one attachInternals() call — the platform hands it
+  // out once per element, so subclasses must not call it themselves.
   #internals = this.attachInternals();
   #renderToken = 0;
   // Decoded pixels of the current src, reused across attribute-driven

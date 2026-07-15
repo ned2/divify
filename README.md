@@ -157,7 +157,10 @@ For the element, give it an `alt`, exactly as you would an `<img>`:
 
 The semantics are applied via `ElementInternals`, never as attributes on the
 host, so if you set your own `role` or `aria-label` on the element they win
-automatically.
+automatically. One consequence for subclassers: the element claims its one
+`attachInternals()` call at construction (the platform hands internals out
+once per element), so a subclass of `DivifiedImage` must not call
+`attachInternals()` itself — it would throw.
 
 The function API renders into *your* container, so labeling it is your job
 (divify won't touch your element's attributes). Give the container image

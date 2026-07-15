@@ -225,6 +225,33 @@ describe("<divified-image>", () => {
     expect(internalsOf(element).ariaLabel).toBeNull();
   });
 
+  it("renders unlabeled instead of breaking when internals ARIA throws", async () => {
+    // Real (unstubbed) jsdom 26 throws on any ElementInternals ARIA get/set;
+    // #applyAlt must swallow that so the element still works in consumers'
+    // test environments.
+    vi.spyOn(HTMLElement.prototype, "attachInternals").mockImplementation(function (
+      this: HTMLElement,
+    ) {
+      return new Proxy({} as ElementInternals, {
+        get() {
+          throw new TypeError("ARIA reflection not implemented");
+        },
+        set(): boolean {
+          throw new TypeError("ARIA reflection not implemented");
+        },
+      });
+    });
+
+    const element = createElement({ src: "photo.jpg", "pixel-size": "2", alt: "a cat" });
+    await settled();
+    expect(element.firstElementChild!.className).toBe("divify");
+
+    element.setAttribute("alt", "a renamed cat");
+    element.removeAttribute("alt");
+    await settled();
+    expect(element.firstElementChild!.children).toHaveLength(6);
+  });
+
   it("hides the rendered grid from assistive technology", async () => {
     const element = createElement({ src: "photo.jpg", "pixel-size": "2" });
     await settled();
