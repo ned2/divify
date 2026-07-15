@@ -28,6 +28,10 @@ export interface DivifyOptions {
 export interface DivifyResult {
   /** The generated grid container (already inserted into the target). */
   element: HTMLElement;
+  /** Width of the source image in CSS px, before any cropping. */
+  sourceWidth: number;
+  /** Height of the source image in CSS px, before any cropping. */
+  sourceHeight: number;
   /** Serialized markup of the divified image. */
   getHTML(): string;
   /** All CSS needed to render the divified image standalone. */
@@ -82,6 +86,8 @@ export async function divify(
 
   return {
     element: container,
+    sourceWidth: imageData.width,
+    sourceHeight: imageData.height,
     getHTML: () => container.outerHTML,
     getCSS: () => (scopedCSS ? `${BASE_CSS}\n\n${scopedCSS}` : BASE_CSS),
   };

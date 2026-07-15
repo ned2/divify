@@ -8,6 +8,11 @@
  * The layout rules shared by every divified image. Injected into the
  * document once; per-image values (column count, pixel size, gap) are
  * supplied as custom properties inline on each container.
+ *
+ * The <divified-image> rules live here rather than as inline styles on the
+ * host so any consumer stylesheet can override them (plain tag/attribute
+ * selectors lose to author CSS; inline styles don't). The [letterbox] box is
+ * sized by --divified-source-* custom properties set by the element.
  */
 export const BASE_CSS = `.divify {
   display: grid;
@@ -19,6 +24,17 @@ export const BASE_CSS = `.divify {
 
 .divify > div {
   box-sizing: border-box;
+}
+
+divified-image {
+  display: inline-block;
+}
+
+divified-image[letterbox] {
+  display: inline-grid;
+  place-content: center;
+  inline-size: var(--divified-source-width);
+  aspect-ratio: var(--divified-source-ratio);
 }`;
 
 let counter = 0;

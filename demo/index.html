@@ -109,11 +109,14 @@ for (let i = 0; i &lt; pixels.length; i += 4) {
         <span class="tool">divify</span> also ships a
         <code>&lt;divified-image&gt;</code> custom element, so you can divify
         with no JavaScript of your own. This one re-renders live as you change
-        its <code>pixel-size</code> attribute:
+        its <code>pixel-size</code> attribute. It also has the
+        <code>letterbox</code> attribute, which reserves the original image's
+        footprint — without it, the grid (cropped to whole pixels) would jiggle
+        the page on every step of the slider:
       </p>
 
       <figure>
-        <divified-image src="/george_small.jpg" pixel-size="8"></divified-image>
+        <divified-image src="/george_small.jpg" pixel-size="8" letterbox></divified-image>
         <figcaption>
           <label>
             pixel-size:

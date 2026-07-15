@@ -45,6 +45,13 @@ describe("divify", () => {
     ]);
   });
 
+  it("reports the source image's dimensions, before cropping", async () => {
+    const target = document.createElement("div");
+    const result = await divify(target, testImage(), { pixelSize: 3 });
+    expect(result.sourceWidth).toBe(4);
+    expect(result.sourceHeight).toBe(4);
+  });
+
   it("replaces any existing content in the target", async () => {
     const target = document.createElement("div");
     target.innerHTML = "<p>old content</p>";

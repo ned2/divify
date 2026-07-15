@@ -29,6 +29,8 @@ const result = await divify(document.querySelector("#target"), "photo.jpg", {
 
 result.getHTML(); // serialized markup of the divified image
 result.getCSS();  // all CSS needed to render it standalone
+result.sourceWidth;  // the source image's natural dimensions,
+result.sourceHeight; // before any cropping
 ```
 
 The source can be an image URL, an `<img>` element, a `<canvas>` element, or
@@ -64,9 +66,32 @@ edges are cropped to the nearest multiple.
 <divified-image src="photo.jpg" pixel-size="8" gap="1px"></divified-image>
 ```
 
-The element re-renders whenever its `src`, `pixel-size`, or `gap` attributes
-change. To register it under a different tag name, import
+| Attribute    | Description                                                                                          |
+| ------------ | ---------------------------------------------------------------------------------------------------- |
+| `src`        | URL of the image to divify.                                                                          |
+| `pixel-size` | Same as the `pixelSize` option.                                                                      |
+| `gap`        | Same as the `gap` option.                                                                            |
+| `letterbox`  | Boolean. Reserve the source image's natural dimensions and center the grid inside them (see below).  |
+
+The element re-renders whenever any of these attributes change, and caches
+the decoded source pixels so that re-renders (say, dragging a `pixel-size`
+slider) don't re-fetch and re-decode the image; changing `src` invalidates
+the cache. To register it under a different tag name, import
 `defineDivifiedImage` instead of relying on the side-effect registration.
+
+By default the element shrink-wraps the rendered grid — and because the grid
+is cropped to whole pixels, its size varies slightly with `pixel-size`. Add
+the `letterbox` attribute when `pixel-size` changes dynamically: the element
+holds the source image's natural dimensions as its content box and centers
+the grid inside it, so the surrounding layout stays put while the grid
+breathes. Letterboxing only stabilizes the element's footprint; it does not
+make the grid responsive — a grid wider than its container still overflows
+the same way it does today (downscale the source, or give the element an
+`overflow-x` of your choosing).
+
+The element's default `display: inline-block` (and the letterbox layout)
+comes from the injected stylesheet, not inline styles, so your own CSS can
+override it with a plain `divified-image { ... }` rule.
 
 ## How it works
 
