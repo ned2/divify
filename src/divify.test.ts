@@ -151,6 +151,9 @@ describe("divify", () => {
     expect(result.getHTML()).toContain("background-color");
     expect(result.getCSS()).toContain("display: grid;");
     expect(result.getCSS()).toContain("border: 1px solid black;");
+    // Host rules for <divified-image> are injected separately by the
+    // element; serialized grids don't need them.
+    expect(result.getCSS()).not.toContain("divified-image");
   });
 
   it("gives distinct ids to successive divified images", async () => {

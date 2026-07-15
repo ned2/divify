@@ -8,11 +8,6 @@
  * The layout rules shared by every divified image. Injected into the
  * document once; per-image values (column count, pixel size, gap) are
  * supplied as custom properties inline on each container.
- *
- * The <divified-image> rules live here rather than as inline styles on the
- * host so any consumer stylesheet can override them (plain tag/attribute
- * selectors lose to author CSS; inline styles don't). The [letterbox] box is
- * sized by --divified-source-* custom properties set by the element.
  */
 export const BASE_CSS = `.divify {
   display: grid;
@@ -24,18 +19,38 @@ export const BASE_CSS = `.divify {
 
 .divify > div {
   box-sizing: border-box;
-}
+}`;
 
-divified-image {
+/**
+ * The host rules for the <divified-image> element, parameterized by tag name
+ * so registrations under a custom name get them too. Kept out of BASE_CSS so
+ * getCSS() serializations carry only grid rules.
+ *
+ * These are stylesheet rules rather than inline styles on the host so any
+ * consumer CSS can override them — never widening the page is the safe
+ * default, but e.g. deliberate bleed (overflow: visible) and unclipped pixel
+ * shadows are two documented lines away. The [letterbox] box is sized by
+ * --divified-source-* custom properties set by the element; max-inline-size
+ * shrinks that box like an <img> on narrow viewports (the grid inside
+ * scrolls). place-content is declared twice: browsers without overflow
+ * alignment keep plain centering, the rest get `safe` so a grid overflowing
+ * the letterbox stays scrollable-to instead of clipped at the start edge.
+ */
+export function elementCSS(tagName: string): string {
+  return `${tagName} {
   display: inline-block;
+  max-inline-size: 100%;
+  overflow: auto;
 }
 
-divified-image[letterbox] {
+${tagName}[letterbox] {
   display: inline-grid;
   place-content: center;
+  place-content: safe center;
   inline-size: var(--divified-source-width);
   aspect-ratio: var(--divified-source-ratio);
 }`;
+}
 
 let counter = 0;
 
@@ -50,6 +65,15 @@ export function ensureBaseStyles(doc: Document): void {
   const sheet = doc.createElement("style");
   sheet.setAttribute("data-divify-base", "");
   sheet.textContent = BASE_CSS;
+  doc.head.append(sheet);
+}
+
+/** Injects the element's host stylesheet, once per (document, tag name). */
+export function ensureElementStyles(doc: Document, tagName: string): void {
+  if (doc.head.querySelector(`style[data-divify-element="${tagName}"]`)) return;
+  const sheet = doc.createElement("style");
+  sheet.setAttribute("data-divify-element", tagName);
+  sheet.textContent = elementCSS(tagName);
   doc.head.append(sheet);
 }
 

@@ -10,7 +10,7 @@ vi.mock("./sources.js", async (importOriginal) => ({
   loadImageData,
 }));
 
-import "./element.js";
+import { defineDivifiedImage } from "./element.js";
 
 /** A width x height image of solid red pixels. */
 function makeTestImage(width: number, height: number): ImageDataLike {
@@ -52,11 +52,39 @@ describe("<divified-image>", () => {
     expect(grid.children).toHaveLength(6);
   });
 
-  it("injects the base stylesheet on connect, before the source loads", () => {
+  it("injects the base and host stylesheets on connect, before the source loads", () => {
     createElement({ src: "photo.jpg" });
-    const sheet = document.head.querySelector("style[data-divify-base]");
-    expect(sheet).not.toBeNull();
-    expect(sheet!.textContent).toContain("divified-image[letterbox]");
+    const base = document.head.querySelector("style[data-divify-base]");
+    expect(base).not.toBeNull();
+    expect(base!.textContent).not.toContain("divified-image");
+
+    const host = document.head.querySelector(
+      'style[data-divify-element="divified-image"]',
+    );
+    expect(host).not.toBeNull();
+    expect(host!.textContent).toContain("divified-image[letterbox]");
+    expect(host!.textContent).toContain("max-inline-size: 100%");
+    expect(host!.textContent).toContain("overflow: auto");
+  });
+
+  it("injects the host stylesheet once per tag name", () => {
+    createElement({ src: "photo.jpg" });
+    createElement({ src: "other.jpg" });
+    expect(document.head.querySelectorAll("style[data-divify-element]")).toHaveLength(1);
+  });
+
+  it("styles elements registered under a custom tag name", async () => {
+    defineDivifiedImage("pixel-pic");
+    const element = document.createElement("pixel-pic");
+    element.setAttribute("src", "photo.jpg");
+    element.setAttribute("pixel-size", "2");
+    document.body.append(element);
+    await settled();
+
+    const host = document.head.querySelector('style[data-divify-element="pixel-pic"]');
+    expect(host).not.toBeNull();
+    expect(host!.textContent).toContain("pixel-pic[letterbox]");
+    expect(element.firstElementChild!.className).toBe("divify");
   });
 
   it("styles the host via the stylesheet, not inline styles", async () => {

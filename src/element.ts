@@ -10,7 +10,7 @@
  */
 import { divify } from "./divify.js";
 import { loadImageData } from "./sources.js";
-import { ensureBaseStyles } from "./styles.js";
+import { ensureBaseStyles, ensureElementStyles } from "./styles.js";
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -28,9 +28,13 @@ export class DivifiedImage extends HTMLElement {
   #imageDataSrc: string | null = null;
 
   connectedCallback(): void {
-    // The base sheet supplies this element's default display and [letterbox]
-    // layout; divify() would inject it too, but only after the source loads.
+    // The injected sheets supply the grid layout and this element's host
+    // styling (default display, overflow containment, [letterbox]); divify()
+    // would inject the base sheet too, but only after the source loads. The
+    // host sheet is keyed by localName so elements registered under a custom
+    // tag name via defineDivifiedImage() get it as well.
     ensureBaseStyles(this.ownerDocument);
+    ensureElementStyles(this.ownerDocument, this.localName);
     void this.#render();
   }
 
@@ -99,9 +103,14 @@ export class DivifiedImage extends HTMLElement {
 
 /** Registers the element (default tag name: "divified-image"). Idempotent. */
 export function defineDivifiedImage(tagName = "divified-image"): void {
-  if (!customElements.get(tagName)) {
-    customElements.define(tagName, DivifiedImage);
-  }
+  if (customElements.get(tagName)) return;
+  // A constructor can only be registered once, and importing this module
+  // already claims DivifiedImage for "divified-image" — every other tag name
+  // needs its own subclass or define() throws NotSupportedError.
+  customElements.define(
+    tagName,
+    tagName === "divified-image" ? DivifiedImage : class extends DivifiedImage {},
+  );
 }
 
 defineDivifiedImage();

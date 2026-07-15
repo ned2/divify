@@ -30,6 +30,18 @@ figure {
     margin-inline: auto;
   }
 
+  > canvas {
+    max-inline-size: 100%;
+  }
+
+  /* Reference responsive usage for the function API: the fixed-px grid
+     can't shrink, so let it scroll on narrow viewports. The padding keeps
+     pixel box-shadows out of the scroll container's clip edge. */
+  > div {
+    overflow-x: auto;
+    padding: 0.5rem;
+  }
+
   > figcaption {
     margin-block-start: 0.5rem;
     font-style: italic;
@@ -72,6 +84,7 @@ pre {
 
 #user-pix {
   margin-block: 3rem;
+  overflow-x: auto;
 
   .divify {
     margin-inline: auto;

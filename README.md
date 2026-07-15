@@ -84,14 +84,50 @@ is cropped to whole pixels, its size varies slightly with `pixel-size`. Add
 the `letterbox` attribute when `pixel-size` changes dynamically: the element
 holds the source image's natural dimensions as its content box and centers
 the grid inside it, so the surrounding layout stays put while the grid
-breathes. Letterboxing only stabilizes the element's footprint; it does not
-make the grid responsive — a grid wider than its container still overflows
-the same way it does today (downscale the source, or give the element an
-`overflow-x` of your choosing).
+breathes. On viewports narrower than the source image, the letterbox scales
+down like an `<img>` (aspect ratio intact) and the grid scrolls inside it;
+the footprint depends only on the source and the container, never on
+`pixel-size`, so it still doesn't wobble.
 
-The element's default `display: inline-block` (and the letterbox layout)
-comes from the injected stylesheet, not inline styles, so your own CSS can
-override it with a plain `divified-image { ... }` rule.
+All of the element's host styling (its `display: inline-block` default, the
+overflow handling below, the letterbox layout) comes from an injected
+stylesheet, not inline styles, so your own CSS can override any of it with a
+plain `divified-image { ... }` rule. Elements registered under a custom tag
+name via `defineDivifiedImage` get the same styles under their own name.
+
+#### Responsive embedding
+
+A grid of fixed-px divs cannot shrink the way an `<img>` resamples, so the
+element ships an overflow-safe default in its injected styles:
+
+```css
+divified-image { max-inline-size: 100%; overflow: auto; }
+```
+
+It never grows wider than its container; on viewports narrower than the
+grid, the grid keeps its true size and scrolls inside the element. (Your
+site-wide `img { max-width: 100% }` reset wouldn't have covered this
+element, and `max-width` alone wouldn't help anyway — an overflowing grid
+paints straight past a capped box instead of shrinking.)
+
+Two overrides worth knowing:
+
+```css
+/* Deliberate bleed — also restores pixel box-shadows, which a scroll
+   container clips at the element's edge. */
+divified-image { max-inline-size: none; overflow: visible; }
+
+/* A roomier letterbox, e.g. when a gap inflates the grid beyond the source
+   image's natural size. Scaling the *source* width keeps the reserved
+   footprint independent of pixel-size. */
+divified-image[letterbox] { inline-size: calc(var(--divified-source-width) * 1.25); }
+```
+
+The function API deliberately ships no responsive defaults: `divify()`
+inserts the grid into *your* container, and overflow policy there is yours.
+Wrap it in a scroll container (`overflow-x: auto`), downscale the source, or
+scale it visually with `transform` — `demo/demo.css` shows the
+scroll-container pattern.
 
 ## How it works
 
