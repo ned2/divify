@@ -112,11 +112,18 @@ for (let i = 0; i &lt; pixels.length; i += 4) {
         its <code>pixel-size</code> attribute. It also has the
         <code>letterbox</code> attribute, which reserves the original image's
         footprint — without it, the grid (cropped to whole pixels) would jiggle
-        the page on every step of the slider:
+        the page on every step of the slider. And it takes an
+        <code>alt</code>, just like an <code>&lt;img&gt;</code> — screen
+        readers hear about the cat instead of several thousand empty divs:
       </p>
 
       <figure>
-        <divified-image src="/george_small.jpg" pixel-size="8" letterbox></divified-image>
+        <divified-image
+          src="/george_small.jpg"
+          alt="George the cat, meticulously reconstructed from divs"
+          pixel-size="8"
+          letterbox
+        ></divified-image>
         <figcaption>
           <label>
             pixel-size:

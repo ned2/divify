@@ -45,6 +45,17 @@ describe("divify", () => {
     ]);
   });
 
+  it("hides the pixel grid from assistive technology", async () => {
+    const target = document.createElement("div");
+    const result = await divify(target, testImage(), { pixelSize: 2 });
+
+    // Unconditional, and carried into serializations: the pixel divs are
+    // never meaningful to AT — the accessible name belongs on the consumer's
+    // container (or <divified-image alt>).
+    expect(result.element.getAttribute("aria-hidden")).toBe("true");
+    expect(result.getHTML()).toContain('aria-hidden="true"');
+  });
+
   it("reports the source image's dimensions, before cropping", async () => {
     const target = document.createElement("div");
     const result = await divify(target, testImage(), { pixelSize: 3 });

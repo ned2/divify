@@ -69,15 +69,18 @@ edges are cropped to the nearest multiple.
 | Attribute    | Description                                                                                          |
 | ------------ | ---------------------------------------------------------------------------------------------------- |
 | `src`        | URL of the image to divify.                                                                          |
+| `alt`        | Accessible description, exactly like `<img alt>` — see [Accessibility](#accessibility).              |
 | `pixel-size` | Same as the `pixelSize` option.                                                                      |
 | `gap`        | Same as the `gap` option.                                                                            |
 | `letterbox`  | Boolean. Reserve the source image's natural dimensions and center the grid inside them (see below).  |
 
-The element re-renders whenever any of these attributes change, and caches
-the decoded source pixels so that re-renders (say, dragging a `pixel-size`
-slider) don't re-fetch and re-decode the image; changing `src` invalidates
-the cache. To register it under a different tag name, import
-`defineDivifiedImage` instead of relying on the side-effect registration.
+The element re-renders whenever any of these attributes change (except `alt`,
+which updates the accessible name in place — relabeling a cat doesn't need
+new pixels), and caches the decoded source pixels so that re-renders (say,
+dragging a `pixel-size` slider) don't re-fetch and re-decode the image;
+changing `src` invalidates the cache. To register it under a different tag
+name, import `defineDivifiedImage` instead of relying on the side-effect
+registration.
 
 By default the element shrink-wraps the rendered grid — and because the grid
 is cropped to whole pixels, its size varies slightly with `pixel-size`. Add
@@ -128,6 +131,36 @@ inserts the grid into *your* container, and overflow policy there is yours.
 Wrap it in a scroll container (`overflow-x: auto`), downscale the source, or
 scale it visually with `transform` — `demo/demo.css` shows the
 scroll-container pattern.
+
+### Accessibility
+
+Visually, a divified image is an image. To assistive technology it would be
+hundreds of empty divs — so the generated grid always carries
+`aria-hidden="true"` (including in `getHTML()` serializations), and the
+accessible name lives one level up.
+
+For the element, give it an `alt`, exactly as you would an `<img>`:
+
+```html
+<divified-image src="george.jpg" alt="George the cat, now 100% div"></divified-image>
+```
+
+- `alt="description"` exposes the element as an image with that name.
+- `alt=""` marks it explicitly decorative, mirroring `<img alt="">`.
+- No `alt` leaves the element unlabeled — like an `<img>` without `alt`,
+  this is the one you shouldn't ship.
+
+The semantics are applied via `ElementInternals`, never as attributes on the
+host, so if you set your own `role` or `aria-label` on the element they win
+automatically.
+
+The function API renders into *your* container, so labeling it is your job
+(divify won't touch your element's attributes). Give the container image
+semantics yourself:
+
+```html
+<div id="target" role="img" aria-label="George the cat, now 100% div"></div>
+```
 
 ## How it works
 

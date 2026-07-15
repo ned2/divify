@@ -25,6 +25,17 @@ function makeTestImage(width: number, height: number): ImageDataLike {
 /** Waits for in-flight #render() calls (they only await resolved promises). */
 const settled = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+// jsdom's ElementInternals throws on any ARIA property access, so substitute
+// a plain recording object per host. Real ARIA reflection (and the fact that
+// host attributes beat internals) is platform behavior, verified manually in
+// a browser via the demo page.
+interface FakeInternals {
+  role: string | null;
+  ariaLabel: string | null;
+}
+const internalsByHost = new Map<HTMLElement, FakeInternals>();
+const internalsOf = (element: HTMLElement) => internalsByHost.get(element)!;
+
 function createElement(attributes: Record<string, string>): HTMLElement {
   const element = document.createElement("divified-image");
   for (const [name, value] of Object.entries(attributes)) {
@@ -39,6 +50,14 @@ beforeEach(() => {
   document.body.replaceChildren();
   loadImageData.mockReset();
   loadImageData.mockResolvedValue(makeTestImage(6, 4) as ImageData);
+  internalsByHost.clear();
+  vi.spyOn(HTMLElement.prototype, "attachInternals").mockImplementation(function (
+    this: HTMLElement,
+  ) {
+    const internals: FakeInternals = { role: null, ariaLabel: null };
+    internalsByHost.set(this, internals);
+    return internals as unknown as ElementInternals;
+  });
 });
 
 describe("<divified-image>", () => {
@@ -146,6 +165,71 @@ describe("<divified-image>", () => {
     expect(element.children).toHaveLength(0);
     expect(element.style.getPropertyValue("--divified-source-width")).toBe("");
     expect(element.style.getPropertyValue("--divified-source-ratio")).toBe("");
+  });
+
+  it("exposes an image role and accessible name via ElementInternals from alt", async () => {
+    const element = createElement({ src: "photo.jpg", alt: "George the cat" });
+    await settled();
+
+    const internals = internalsOf(element);
+    expect(internals.role).toBe("img");
+    expect(internals.ariaLabel).toBe("George the cat");
+    // Internals only — the host attributes stay the consumer's to set, and
+    // theirs must win.
+    expect(element.hasAttribute("role")).toBe(false);
+    expect(element.hasAttribute("aria-label")).toBe(false);
+  });
+
+  it('treats alt="" as explicitly decorative', async () => {
+    const element = createElement({ src: "photo.jpg", alt: "" });
+    await settled();
+
+    expect(internalsOf(element).role).toBe("presentation");
+    expect(internalsOf(element).ariaLabel).toBeNull();
+  });
+
+  it("leaves the semantics untouched when alt is missing", async () => {
+    const element = createElement({ src: "photo.jpg" });
+    await settled();
+
+    expect(internalsOf(element).role).toBeNull();
+    expect(internalsOf(element).ariaLabel).toBeNull();
+  });
+
+  it("updates the label on alt change without re-fetching or re-rendering", async () => {
+    const element = createElement({
+      src: "photo.jpg",
+      "pixel-size": "2",
+      alt: "a cat",
+    });
+    await settled();
+    const grid = element.firstElementChild;
+    expect(loadImageData).toHaveBeenCalledTimes(1);
+
+    element.setAttribute("alt", "a very pixelated cat");
+    await settled();
+
+    expect(internalsOf(element).ariaLabel).toBe("a very pixelated cat");
+    expect(loadImageData).toHaveBeenCalledTimes(1);
+    expect(element.firstElementChild).toBe(grid);
+  });
+
+  it("clears the semantics when alt is removed", async () => {
+    const element = createElement({ src: "photo.jpg", alt: "a cat" });
+    await settled();
+
+    element.removeAttribute("alt");
+    await settled();
+
+    expect(internalsOf(element).role).toBeNull();
+    expect(internalsOf(element).ariaLabel).toBeNull();
+  });
+
+  it("hides the rendered grid from assistive technology", async () => {
+    const element = createElement({ src: "photo.jpg", "pixel-size": "2" });
+    await settled();
+
+    expect(element.firstElementChild!.getAttribute("aria-hidden")).toBe("true");
   });
 
   it("dispatches an error event when the source fails to load", async () => {

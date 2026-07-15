@@ -19,8 +19,12 @@ declare global {
 }
 
 export class DivifiedImage extends HTMLElement {
-  static observedAttributes = ["src", "pixel-size", "gap", "letterbox"] as const;
+  static observedAttributes = ["src", "alt", "pixel-size", "gap", "letterbox"] as const;
 
+  // ARIA goes through ElementInternals rather than host attributes so a
+  // consumer's own role="..." / aria-label="..." on the element always wins
+  // (host attributes take precedence over internals automatically).
+  #internals = this.attachInternals();
   #renderToken = 0;
   // Decoded pixels of the current src, reused across attribute-driven
   // re-renders so a pixel-size slider doesn't re-fetch the image per step.
@@ -35,17 +39,48 @@ export class DivifiedImage extends HTMLElement {
     // tag name via defineDivifiedImage() get it as well.
     ensureBaseStyles(this.ownerDocument);
     ensureElementStyles(this.ownerDocument, this.localName);
+    this.#applyAlt();
     void this.#render();
   }
 
   attributeChangedCallback(
-    _name: string,
+    name: string,
     oldValue: string | null,
     newValue: string | null,
   ): void {
     // Initial attributes are handled by connectedCallback.
-    if (this.isConnected && oldValue !== newValue) {
-      void this.#render();
+    if (!this.isConnected || oldValue === newValue) return;
+    if (name === "alt") {
+      // A label change never changes any pixels — update the semantics
+      // without re-rendering (or worse, re-fetching the source).
+      this.#applyAlt();
+      return;
+    }
+    void this.#render();
+  }
+
+  /**
+   * Mirrors the <img> alt contract onto the host: alt text exposes an image
+   * role with that accessible name, alt="" marks the element explicitly
+   * decorative, and a missing alt leaves the semantics untouched.
+   */
+  #applyAlt(): void {
+    const alt = this.getAttribute("alt");
+    try {
+      if (alt === null) {
+        this.#internals.role = null;
+        this.#internals.ariaLabel = null;
+      } else if (alt === "") {
+        this.#internals.role = "presentation";
+        this.#internals.ariaLabel = null;
+      } else {
+        this.#internals.role = "img";
+        this.#internals.ariaLabel = alt;
+      }
+    } catch {
+      // Some DOM implementations (notably jsdom) expose attachInternals()
+      // but not ARIA reflection on the result; render unlabeled rather than
+      // breaking the element in consumers' test environments.
     }
   }
 

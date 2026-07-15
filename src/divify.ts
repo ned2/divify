@@ -66,6 +66,10 @@ export async function divify(
   const container = doc.createElement("div");
   container.className = "divify";
   container.dataset.divify = id;
+  // Hundreds of empty divs are pure noise to assistive tech; hide the grid
+  // and let the accessible name live one level up — <divified-image alt="…">
+  // supplies it, and function-API consumers label their own container.
+  container.setAttribute("aria-hidden", "true");
   container.style.setProperty("--divify-cols", String(grid.columns));
   container.style.setProperty("--divify-pixel-size", `${pixelSize}px`);
   if (gap !== undefined) {
