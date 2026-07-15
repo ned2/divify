@@ -139,6 +139,11 @@ hundreds of empty divs — so the generated grid always carries
 `aria-hidden="true"` (including in `getHTML()` serializations), and the
 accessible name lives one level up.
 
+The pixels are also exempted from forced-colors modes (Windows High
+Contrast) via `forced-color-adjust: none` — those modes strip author
+background colors, which is the *only* thing a divified image is made of.
+Real image content keeps rendering there, and so should a divified one.
+
 For the element, give it an `alt`, exactly as you would an `<img>`:
 
 ```html

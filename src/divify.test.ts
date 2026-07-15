@@ -56,6 +56,16 @@ describe("divify", () => {
     expect(result.getHTML()).toContain('aria-hidden="true"');
   });
 
+  it("exempts the pixels from forced-colors background stripping", async () => {
+    const target = document.createElement("div");
+    const result = await divify(target, testImage(), { pixelSize: 2 });
+
+    const base = document.head.querySelector("style[data-divify-base]");
+    expect(base!.textContent).toContain("forced-color-adjust: none;");
+    // getCSS() serializations must survive forced colors standalone too.
+    expect(result.getCSS()).toContain("forced-color-adjust: none;");
+  });
+
   it("reports the source image's dimensions, before cropping", async () => {
     const target = document.createElement("div");
     const result = await divify(target, testImage(), { pixelSize: 3 });

@@ -8,6 +8,12 @@
  * The layout rules shared by every divified image. Injected into the
  * document once; per-image values (column count, pixel size, gap) are
  * supplied as custom properties inline on each container.
+ *
+ * forced-color-adjust: the pixels are image content painted entirely with
+ * background-color — the first thing forced-colors modes (Windows High
+ * Contrast) strip. Exempt them the way real <img> content is exempt, or the
+ * whole image renders as a blank rectangle for exactly the users the mode
+ * serves. A no-op in browsers without forced-colors modes.
  */
 export const BASE_CSS = `.divify {
   display: grid;
@@ -19,6 +25,7 @@ export const BASE_CSS = `.divify {
 
 .divify > div {
   box-sizing: border-box;
+  forced-color-adjust: none;
 }`;
 
 /**
